@@ -186,7 +186,7 @@ func newProxyRequest(in *http.Request) *http.Request {
 // in is the frontend response writer.
 // out is the backend response.
 func sendResponse(in http.ResponseWriter, out *http.Response) *Error {
-	outHeader := out.Header.Clone() // Do not mofidy out.Header directory.
+	outHeader := out.Header.Clone() // Do not modify out.Header directly.
 	removeHopByHopHeaders(outHeader)
 	copyHeaders(in.Header(), outHeader)
 	if n := len(out.Trailer); n > 0 {
