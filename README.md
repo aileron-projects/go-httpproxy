@@ -29,6 +29,41 @@
 
 ## Usages
 
+The basic `Proxy` struct.
+It implements http.Handler interface.
+
+```go
+// Proxy is an HTTP proxy.
+// It implements [net/http.Handler].
+type Proxy struct {
+    // The transport used to perform proxy requests.
+    // If nil, [net/http.DefaultTransport] is used.
+    Transport http.RoundTripper
+    // PreRoundTrip is called just before roundtrip.
+    // In request must not be modified in the function.
+    // Out request can be modified in the function.
+    // PreRoundTrip can be used for rewriting request url
+    // or changing request context and so on.
+    // Proxy stops proceeding the request when PreRoundTrip
+    // returns non-nil error and calls ErrorHandler.
+    PreRoundTrip func(*ProxyRequest) error
+    // PostRoundTrip is called just after roundtrip.
+    // The given response is the response from backend.
+    // In and Out requests must not be modified in PostRoundTrip.
+    // In holds the frontend-side request and response.
+    // Out holds the backend-side request and response.
+    PostRoundTrip func(*In, *Out) error
+    // ErrorHandler is the optional error handler.
+    // If non-nil, any errors occurred while proxying is given.
+    // If nil, a default error handler is used.
+    // The ResponseWriter will be nil when response is not writable.
+    ErrorHandler func(http.ResponseWriter, *http.Request, *Error)
+}
+
+func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request)
+func (p *Proxy) handleError(w http.ResponseWriter, r *http.Request, err *Error)
+```
+
 ### Built-in round-robin proxy
 
 This example shows how to use built-in simple round-robin proxy.
